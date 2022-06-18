@@ -5,21 +5,27 @@ import time
 import os
 from guizero import PushButton, Text, Window, CheckBox, App
 
+# Imports de fichiers personnels
+from globalisation import *
+
 
 # Concaténer plusieurs fichiers csv en un seul
 def lancement_concaténeur():
     # Traitement des résultats obtenus
     def traitement_selection():
-        if (fichier1.value == 1 and fichier2.value == 0):
-            print("hello world")
-        else:
-            print("Au revoir en fait, ca marche pas du coup")
-        print(fichier1.value)
+    	liste_selection = []
+    	for i in range (0, len(fichier_concat)):
+    		if (globals()[f"fichier" + str(i)].value == 1):
+    			liste_selection.append(globals()[f"fichier" + str(i)].text)
+    		else:
+    			pass
+    	print(f"liste_selection:\n{liste_selection}")
+    	fermer_fenetre()
 
 
     # Afficher une fenetre pour selectionner les fichiers a concatener
     def selection_fichiers():
-        global selection
+        global selection, fichier_concat
         selection = Window(app, title="Selection fichiers")
         message_selection = Text(selection, text="Quels fichier voulez-vous selectionner ?")
 
@@ -28,18 +34,18 @@ def lancement_concaténeur():
 
         # Lecture du fichier / récupération des informations sur les fichiers à traiter
         # ajouter un try/except en cas de non existence du fichier
-        fichiers_concat = open(".to_concatenate.foo", "r")
+        fichier_concat = open(".to_concatenate.foo", "r")
         fichier_concat_contenu = fichier_concat.read()
         fichier_concat.close()
         os.system("rm .to_concatenate.foo")
 
         # Traitement de l'information recue
-        fichier_concat = fichier_concat.replace("\n", ";")
+        fichier_concat = fichier_concat_contenu.replace("\n", ";")
         fichier_concat = fichier_concat.split(";")
         del fichier_concat[len(fichier_concat) - 1]  # Suppression dernier champs de la liste -> vide
         
         # Exécution de la ligne du fichier externe de globalisation qui correspond a la longueur de fichier_concat
-        # ...
+        globals()['glob' + str(len(fichier_concat) - 1)]()
 
         # Génération des variables en fonction du nombre de fichiers à concaténer
         compteur_nbr_checkbox = 0

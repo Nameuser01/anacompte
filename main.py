@@ -8,7 +8,7 @@ from pandas_ods_reader import read_ods
 
 
 # Imports de fichiers personnels
-from globalisation import *
+# from globalisation import *
 
 
 # Fonction de comparaison de deux matrices
@@ -16,7 +16,7 @@ def comparaison_matricielle(to_compare, is_positif):
     # Séléction du comparant
     bit_stop = False
     theme = ""
-    op_positives = [
+    op_negatives = [
         ["voiture", "vélo", "velo", "train", "avion", "bateau", "navette",
          "navigo", "essence", "e10", "e5", "gazole", "b7", "péage", "peage"],
         ["nike", "adidas"],
@@ -24,36 +24,29 @@ def comparaison_matricielle(to_compare, is_positif):
         "boisson"],
         ["loyer"]
     ]
-    op_negatives = [
-        ["virement"],
-        ["cheque", "chèque"],
+    op_positives = [
+        ["virement", "virements"],
+        ["cheque", "cheques", "chèque", "chèques"],
         ["bourse", "apl"],
     ]
+
+    if (to_compare[1] == "’"):
+        to_compare = to_compare[2:]
+    else:
+        pass
+
     if (is_positif == True):
         for a in range(len(op_positives)):
             for b in range(len(op_positives[a])):
-                print(f"to_compare[1] vaut {to_compare[1]}")
-                if (to_compare[1] == "’"):
-                    to_compare = to_compare[2:]
-                else:
-                    pass
-                print(f"{to_compare.lower()} == {op_positives[a][b].lower()} ?")
                 if (to_compare.lower() == op_positives[a][b].lower()):
-                    print(f"theme = {a}")
-                    theme = a
+                    theme = a + len(op_negatives)
                 else:
                     pass
     else:
         for a in range(len(op_negatives)):
             for b in range(len(op_negatives[a])):
-                if (to_compare[1] == "’"):
-                    to_compare = to_compare[2:]
-                else:
-                    pass
-                print(f"{to_compare.lower()} == {op_positives[a][b].lower()} ?")
-                if (to_compare.lower() == op_positives[a][b].lower()):
-                    print(f"theme = {a}")
-                    theme = a + len(op_positives)
+                if (to_compare.lower() == op_negatives[a][b].lower()):
+                    theme = a
                 else:
                     pass
 
@@ -71,9 +64,9 @@ def sujets_proportions(opérations, objet_opérations):
     for a in range(len(objet_opérations)):
         tmp = objet_opérations[a].split()
         if (opérations[a] < 0):
-            positif = True
-        else:
             positif = False
+        else:
+            positif = True
 
         for b in range(len(tmp)):
             theme = ""
@@ -86,14 +79,19 @@ def sujets_proportions(opérations, objet_opérations):
             opérations_list[len(opérations_list) - 1] += opérations[a]
         else:
             opérations_list[theme] += opérations[a]
+    print(f"opérations_list = {opérations_list}")
+    x = []
+    y = []
+    for i in range(len(opérations_list)):
+        if (opérations_list[i] != 0):
+            x.append(opérations_list[i])
+            y.append(themes_list[i])
+        else:
+            pass
 
-    plt.figure(figsize = (8, 8))
-    plt.pie(opérations_list, labels = themes_list,
-        colors = ['red', 'green', 'yellow'],
-        autopct = lambda x: str(round(x, 2)) + '%', pctdistance = 0.7,
-        labeldistance = 1.4
-    )
-    plt.legend()
+    plt.bar(y, x, width=0.1)
+    plt.ylabel("thèmes")
+    plt.grid(True)
     plt.show()
 
 
@@ -126,7 +124,7 @@ def solde_evolution_quotidienne(dates_opérations, opérations):
                 dates.append(dates_opérations[i])
                 reference += 1
         else:
-            print("C'est cassé ;-(")
+            print("Yusk0")
 
     if (solde_courant >= 0):
         color = "g"
@@ -144,7 +142,7 @@ def solde_evolution_quotidienne(dates_opérations, opérations):
 def analyse_statistique(nom_fichier):
     fichier = "/home/<user>/Documents/py/anacompte/main/" + str(nom_fichier)  # MODIFIER
     array_ods = read_ods(fichier)
-    feuille_mois = 5  # À définir par l'utilisateur
+    feuille_mois = 4  # À définir par l'utilisateur
     contenu = read_ods(fichier, feuille_mois)
 
     dates_opérations = []
@@ -161,12 +159,13 @@ def analyse_statistique(nom_fichier):
 
 
 def menu(option):
+    # Constantes
     if (option == "principal"):
         # Afficher le menu principal
         print("====== Menu principal ======")
         print("0\t-\tQuitter le programme")
         print("a\t+\tAnalyse sur un mois")
-        print("b\t+\tAnalyse sur une année [À faire...]")
+        print("b\t+\tAnalyse sur une année")
         print("\n")
     else:
         print("[Erreur]: Aucun menu à afficher !\n")
@@ -189,8 +188,12 @@ def main():
             stay = False
         # Production de statistiques concernant un fichier
         elif (choix == "a"):
-            # Remplacer par une interface graphique
+            # Remplacer cette partie par une interface graphique
             analyse_statistique("2021.ods")
+            input("\n\n[INFO]: Appuyer sur entrée pour continuer...")
+        # Concaténation de fichiers choisis
+        elif (choix == "b"):
+            lancement_concaténeur()
             input("\n\n[INFO]: Appuyer sur entrée pour continuer...")
         else:
             print("\n\n[Erreur]: Entrée utilisateur incorrecte !")
@@ -202,4 +205,3 @@ def main():
 
 os.system("clear")
 main()
-
